@@ -1,0 +1,45 @@
+{
+  "name": "apollo-upload-network-interface",
+  "description": "UploadNetworkInterface for Apollo GraphQL Client",
+  "main": "lib/index.js",
+  "module": "es/index.js",
+  "jsnext:main": "es/index.js",
+  "scripts": {
+    "build": "babel src -d lib",
+    "clean": "rimraf lib",
+    "lint": "eslint src/** test/**",
+    "prepublish": "npm run clean && npm run build",
+    "semantic-release": "semantic-release pre && npm publish && semantic-release post",
+    "test": "mocha --compilers js:babel-register ./test/test.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/HriBB/apollo-upload-network-interface.git"
+  },
+  "keywords": [
+    "apollo",
+    "graphql",
+    "file",
+    "upload",
+    "network",
+    "interface"
+  ],
+  "author": "Bojan Hribernik",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/HriBB/apollo-upload-network-interface/issues"
+  },
+  "homepage": "https://github.com/HriBB/apollo-upload-network-interface#readme",
+  "devDependencies": {
+    "babel-core": "^6.18.2",
+    "babel-eslint": "^7.1.0",
+    "babel-preset-es2015": "^6.18.0",
+    "babel-preset-stage-0": "^6.16.0",
+    "eslint": "^3.10.1",
+    "mocha": "^3.1.2",
+    "semantic-release": "^4.3.5"
+  },
+  "dependencies": {
+    "apollo-client": "^0.5.2"
+  }
+}
