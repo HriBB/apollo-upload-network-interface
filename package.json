@@ -2,15 +2,13 @@
   "name": "apollo-upload-network-interface",
   "description": "UploadNetworkInterface for Apollo GraphQL Client",
   "main": "lib/index.js",
-  "module": "es/index.js",
-  "jsnext:main": "es/index.js",
   "scripts": {
     "build": "babel src -d lib",
     "clean": "rimraf lib",
     "lint": "eslint src/** test/**",
     "prepublish": "npm run clean && npm run build",
     "semantic-release": "semantic-release pre && npm publish && semantic-release post",
-    "test": "mocha --compilers js:babel-register ./test/test.js"
+    "test": "mocha --compilers js:babel-core/register ./test/test.js"
   },
   "repository": {
     "type": "git",
