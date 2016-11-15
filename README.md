@@ -8,10 +8,10 @@ import ApolloClient from 'apollo-client'
 import createNetworkInterface from 'apollo-upload-network-interface'
 
 const networkInterface = createNetworkInterface({
-  uri: config.graphql.url,
+  uri: '/graphql',
 })
 
-export default new ApolloClient({
+const client = new ApolloClient({
   networkInterface
 })
 ```
