@@ -1,5 +1,5 @@
 # apollo-upload-network-interface
-UploadNetworkInterface for Apollo GraphQL Client. Adds support for `multipart/form-data` requests. Used together with [graphql-server-express-upload](https://github.com/HriBB/graphql-server-express-upload) and __graphql-server-koa-upload__ (coming soon).
+UploadNetworkInterface for Apollo GraphQL Client. Adds support for `multipart/form-data` requests. Used together with [graphql-server-express-upload](https://github.com/HriBB/graphql-server-express-upload) and [graphql-server-koa-upload](https://github.com/HriBB/graphql-server-koa-upload) (coming soon).
 
 ## Usage
 
