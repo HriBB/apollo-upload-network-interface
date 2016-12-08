@@ -4,6 +4,8 @@ UploadNetworkInterface for Apollo GraphQL Client. Adds support for `multipart/fo
 
 Used together with [graphql-server-express-upload](https://github.com/HriBB/graphql-server-express-upload) and [graphql-server-koa-upload](https://github.com/HriBB/graphql-server-koa-upload) (coming soon).
 
+_Any help is appreciated!_
+
 ## Usage
 
 ```
@@ -21,4 +23,5 @@ const client = new ApolloClient({
 
 ## TODO
 
-- [ ] Add some tests
+- [ ] Add tests
+- [ ] Convert to typescript
