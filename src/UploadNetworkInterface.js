@@ -14,12 +14,33 @@ export class UploadNetworkInterface extends HTTPFetchNetworkInterface {
       : this.getJSONOptions(req)
     return fetch(this._uri, options);
   }
+  
+  isArrayOfFiles(list) {
+    if (Array.isArray(list)) {
+      let returnValue = false;
+      for (var key in list) {
+        if (list[key] instanceof File) {
+          returnValue = true;
+        } else {
+          return false;
+        }
+      }
+      return returnValue
+    }
+    return false;
+  }
 
   isUpload({ request }) {
     if (request.variables) {
       for (let key in request.variables) {
         if (request.variables[key] instanceof FileList) {
           return true
+        }
+        if (request.variables[key] instanceof File) {
+            return true;
+          }
+        if (this.isArrayOfFiles(request.variables[key])) {
+          return true;
         }
       }
     }
@@ -46,6 +67,10 @@ export class UploadNetworkInterface extends HTTPFetchNetworkInterface {
       let v = request.variables[key]
       if (v instanceof FileList) {
         Array.from(v).forEach(f => body.append(key, f))
+      } else if (isArrayOfFiles(v)) {
+          for (var file in v) {
+            return body.append(key, file); // this part seems buggy
+          }
       } else {
         variables[key] = v
       }
