@@ -20,6 +20,31 @@ const client = new ApolloClient({
   networkInterface
 })
 ```
+If you get an error like this
+```
+/node_modules/apollo-client/transport/networkInterface.js:9
+import 'whatwg-fetch';
+^^^^^^
+
+SyntaxError: Unexpected token import
+```
+You need to configure you `babel-loader` like this
+```
+{
+  test: /\.js$/,
+  loader: 'babel-loader',
+  exclude: /node_modules\/(?!(apollo-client)\/).*/,
+  include: [
+    path.resolve(__dirname, '..', 'config'),
+    path.resolve(__dirname, '..', 'client'),
+    path.resolve(__dirname, '..', 'node_modules', 'apollo-client'),
+    //reactMdlExtraPath,
+  ],
+  query: {
+    cacheDirectory: true,
+  },
+}
+```
 
 ## TODO
 
