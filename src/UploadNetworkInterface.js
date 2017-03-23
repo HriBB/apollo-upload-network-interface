@@ -1,5 +1,5 @@
-import { printAST } from 'apollo-client'
-import { HTTPFetchNetworkInterface, printRequest } from 'apollo-client/transport/networkInterface'
+import { printAST, HTTPFetchNetworkInterface } from 'apollo-client'
+import { print } from 'graphql-tag/bundledPrinter';
 
 export default function createNetworkInterface(opts) {
   const { uri } = opts
@@ -66,3 +66,10 @@ export class UploadNetworkInterface extends HTTPFetchNetworkInterface {
   }
 
 }
+
+function printRequest(request) {
+  return {
+    ...request,
+    query: print(request.query),
+  };
+};
