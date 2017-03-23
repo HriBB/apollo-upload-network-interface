@@ -1,68 +1,82 @@
-import { printAST } from 'apollo-client'
-import { HTTPFetchNetworkInterface, printRequest } from 'apollo-client/transport/networkInterface'
+import { printAST, HTTPFetchNetworkInterface } from 'apollo-client';
+import RecursiveIterator from 'recursive-iterator';
+import objectPath from 'object-path';
+import uuid from 'uuid';
 
 export default function createNetworkInterface(opts) {
-  const { uri } = opts
-  return new UploadNetworkInterface(uri, opts)
+  const { uri } = opts;
+  return new UploadNetworkInterface(uri, opts);
 }
 
 export class UploadNetworkInterface extends HTTPFetchNetworkInterface {
+  constructor(...args) {
+    super(...args);
 
-  fetchFromRemoteEndpoint(req) {
-    const options = this.isUpload(req)
-      ? this.getUploadOptions(req)
-      : this.getJSONOptions(req)
-    return fetch(this._uri, options);
-  }
+    /**
+     * Save the original fetchFromRemoteEndpoint method
+     */
+    const originalFetchFromRemoteEndpoint = this.fetchFromRemoteEndpoint.bind(this);
 
-  isUpload({ request }) {
-    if (request.variables) {
-      for (let key in request.variables) {
-        if (request.variables[key] instanceof FileList) {
-          return true
+    /**
+     * Patch the fetchFromRemoteEndpoint method
+     */
+    this.fetchFromRemoteEndpoint = ({request, options}) => {
+      const formData = new FormData();
+
+      /**
+       * Recursively search for File objects in
+       * he request and set it as formData
+       */
+      let hasFile = false;
+      for (let { node, path } of new RecursiveIterator(request.variables)) {
+        if (node instanceof File) {
+          hasFile = true;
+
+          const id = uuid.v4();
+          formData.append(id, node);
+          objectPath.set(request.variables, path.join('.'), id);
         }
       }
-    }
-    return false
-  }
 
-  getJSONOptions({ request, options }) {
-    return Object.assign({}, this._opts, {
-      body: JSON.stringify(printRequest(request)),
-      method: 'POST',
-    }, options, {
-      headers: Object.assign({}, {
-        Accept: '*/*',
-        'Content-Type': 'application/json',
-      }, options.headers),
-    })
-  }
+      if (hasFile) {
 
-  getUploadOptions({ request, options }) {
-    const body = new FormData()
-    const variables = {}
-
-    for (let key in request.variables) {
-      let v = request.variables[key]
-      if (v instanceof FileList) {
-        Array.from(v).forEach(f => body.append(key, f))
+        /**
+         * One or more Files are found, use the special fetcher
+         */
+        return this.uploadFetchFromRemoteEndpoint({request, options}, formData);
       } else {
-        variables[key] = v
+
+        /**
+         * No File is found, use the normal way
+         */
+        return originalFetchFromRemoteEndpoint({request, options});
       }
-    }
-
-    body.append('operationName', request.operationName)
-    body.append('query', printAST(request.query))
-    body.append('variables', JSON.stringify(variables))
-
-    return Object.assign({}, this._opts, {
-      body,
-      method: 'POST',
-    }, options, {
-      headers: Object.assign({}, {
-        Accept: '*/*',
-      }, options.headers),
-    })
+    };
   }
 
-}
+  /**
+   * Alternative to `uploadFetchFromRemoteEndpoint`
+   * to support FormData
+   *
+   * @param {Object} requestParams
+   * @param {Object} requestParams.request The request
+   * @param {Object} requestParams.options The request-options
+   * @param {FormData} formData Containing the file(s)
+   */
+  uploadFetchFromRemoteEndpoint({request, options}, formData) {
+    formData.append('operationName', request.operationName);
+    formData.append('query', printAST(request.query));
+    formData.append('variables', JSON.stringify(request.variables || {}));
+
+    return fetch(this._opts.uri, {
+      ...options,
+      body: formData,
+      method: 'POST',
+      headers: {
+        Accept: '*/*',
+        ...options.headers,
+      },
+    });
+  }
+
+};
